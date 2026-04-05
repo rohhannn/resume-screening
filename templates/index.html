@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Resume Ranking System</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>🚀 AI Resume Ranking System</h1>
+
+  <form method="POST" enctype="multipart/form-data" class="card">
+    <input type="file" name="resumes" multiple required>
+    <textarea name="job" placeholder="Paste job description..." required></textarea>
+    <button type="submit">Analyze Candidates</button>
+  </form>
+
+  {% if results and results|length > 0 %}
+  <div class="result-card">
+
+    <h2>🏆 Candidate Ranking</h2>
+
+    {% for r in results %}
+    <div class="candidate">
+      <h3>{{ loop.index }}. {{ r.name }}</h3>
+
+      <div class="progress">
+        <div class="progress-bar" style="width: {{ r.score }}%;">
+          {{ r.score }}%
+        </div>
+      </div>
+
+      <p>Similarity: {{ r.similarity }}%</p>
+      <p>Keyword Match: {{ r.keyword_score }}%</p>
+
+      <p><b>Matched:</b> {{ r.matched }}</p>
+      <p><b>Missing:</b> {{ r.missing }}</p>
+    </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- 📊 PROFESSIONAL CHART -->
+  <canvas id="chart"></canvas>
+
+  <script>
+    const labels = [
+      {% for r in results %}
+        "{{ r.name }}",
+      {% endfor %}
+    ];
+
+    const scores = [
+      {% for r in results %}
+        {{ r.score }},
+      {% endfor %}
+    ];
+
+    new Chart(document.getElementById('chart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Candidate Scores (%)',
+          data: scores,
+          backgroundColor: [
+            '#38bdf8',
+            '#22c55e',
+            '#facc15',
+            '#f97316',
+            '#ef4444'
+          ],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: "white"
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "white" }
+          },
+          y: {
+            ticks: { color: "white" },
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+  </script>
+
+  {% endif %}
+
+</div>
+
+</body>
+</html>
